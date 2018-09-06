@@ -332,10 +332,16 @@
     // set URL
     [request setURL:requestURL];
     
-    NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
+    
+    //NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
     // NSString *returnString = [[NSString alloc] initWithData:returnData encoding:NSUTF8StringEncoding];
     //    NSDictionary *dict=[NSJSONSerialization JSONObjectWithData:returnData options:NSJSONReadingMutableLeaves error:nil];
     //    NSLog(@"%@",dict);
+    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession * urlSession = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:self delegateQueue:nil];
+    NSURLSessionUploadTask *uploadTask = [urlSession uploadTaskWithRequest:request fromData:body];
+    [uploadTask resume];
+
 }
 
 -(void) uploadDocument:(NSData *)fileData withName:(NSString *)fileName andPath:(NSString *)pathToFile{
@@ -514,4 +520,35 @@
     
     return uniqueFileName;
 }
+//https://jmsliu.com/3241/select-and-upload-multiple-photos-from-gallery-or-camera-in-ios.html
+#pragma mark NSURLSessionTaskDelegate
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
+    NSLog(@"Sent %lld, Total sent %lld, Not Sent %lld", bytesSent, totalBytesSent, totalBytesExpectedToSend);
+}
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    NSLog(@"URL Session Complete: %@", task.response.description);
+    
+    if(error != nil) {
+        NSLog(@"Error %@",[error userInfo]);
+    } else {
+        NSLog(@"Uploading is Succesfull");
+        
+        //NSString *result = [[NSString alloc] initWithData:receiveData encoding:NSUTF8StringEncoding];
+        //NSLog(@"%@", result);
+    }
+}
+#pragma mark NSURLSessionDataDelegate
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
+    //receiveData = [NSMutableData data];
+    //[receiveData setLength:0];
+    completionHandler(NSURLSessionResponseAllow);
+    NSLog(@"NSURLSession Starts to Receive Data");
+}
+
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
+    //[receiveData appendData:data];
+    NSLog(@"NSURLSession Receive Data");
+}
+
+
 @end

@@ -8,7 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController<UIImagePickerControllerDelegate,UIDocumentPickerDelegate,UIPopoverPresentationControllerDelegate>
+@interface ViewController : UIViewController<UIImagePickerControllerDelegate,UIDocumentPickerDelegate,UIPopoverPresentationControllerDelegate,
+NSURLSessionTaskDelegate,NSURLSessionDataDelegate,NSURLSessionDataDelegate>
 
 
 @end
